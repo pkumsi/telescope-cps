@@ -1,6 +1,6 @@
 # Telescope CPS Simulator
 
-This project implements a Cyber-Physical System (CPS) for telescope control using Java Spring Boot. The system is based on SRC (State–event–Response–Computation) diagrams provided in the course material. The project simulates a three-layer architecture consisting of Cyber, Sensor/Actuator (SA), and Physical components.
+This project implements a Cyber-Physical System (CPS) for telescope control using Java Spring Boot. The system is based on SRC (Synchronous Reactive Component) diagrams provided in the course material. The project simulates a three-layer architecture consisting of Cyber, Sensor/Actuator (SA), and Physical components.
 
 ## Project Overview
 
