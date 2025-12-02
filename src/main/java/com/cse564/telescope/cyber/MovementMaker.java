@@ -23,9 +23,9 @@ import java.util.Queue;
 public class MovementMaker {
     
     // State variables
-    private final Queue<Float> Adjustment_Queue = new LinkedList<>();
-    private float ca = 0;  // current adjustment
-    private float pa = 0;  // previous adjustment
+    private final Queue<IdealAdjustment> Adjustment_Queue = new LinkedList<>();
+    private float ca = 0;  // current (actual) adjustment command
+    private float pa = 0;  // previous (actual) adjustment command
     
     private final ApplicationEventPublisher eventPublisher;
     
@@ -34,10 +34,10 @@ public class MovementMaker {
         log.info("MovementMaker initialized");
     }
 
-    public synchronized void enqueueAdjustment(float idealAdjustment) {
-        Adjustment_Queue.add(idealAdjustment);
-        log.debug("MovementMaker A1: Enqueued idealAdjustment={}, queue size={}", 
-                  idealAdjustment, Adjustment_Queue.size());
+    public synchronized void enqueueAdjustment(float idealAdjustment, float targetIdealPos) {
+        Adjustment_Queue.add(new IdealAdjustment(idealAdjustment, targetIdealPos));
+        log.debug("MovementMaker A1: Enqueued idealAdjustment={}, targetIdealPos={}, queue size={}", 
+                  idealAdjustment, targetIdealPos, Adjustment_Queue.size());
     }
     
 
@@ -46,13 +46,15 @@ public class MovementMaker {
         log.debug("MovementMaker A2: makeAdjustment event received");
         
         if (!Adjustment_Queue.isEmpty()) {
-            ca = Adjustment_Queue.poll();
+            IdealAdjustment idealAdjustment = Adjustment_Queue.poll();
             float currentRot = getCurrentRotFromSensor();
-            float adjustment = ca + (pa - currentRot);
-            pa = ca;
+            float previousAdjustment = ca;
+            float adjustment = idealAdjustment.targetIdealPos() - currentRot;
+            pa = previousAdjustment;
+            ca = adjustment;
             
-            log.info("MovementMaker A2: ca={}, currentRot={}, adjustment={}, pa={}", 
-                     ca, currentRot, adjustment, pa);
+            log.info("MovementMaker A2: idealAdjustment={}, targetIdealPos={}, currentRot={}, adjustment={}, pa={}", 
+                     idealAdjustment.idealAdjustment(), idealAdjustment.targetIdealPos(), currentRot, adjustment, pa);
             
             // Publish adjustment event
             eventPublisher.publishEvent(new AdjustmentEvent(this, adjustment));
@@ -76,4 +78,6 @@ public class MovementMaker {
     public synchronized int getQueueSize() {
         return Adjustment_Queue.size();
     }
+
+    private record IdealAdjustment(float idealAdjustment, float targetIdealPos) { }
 }

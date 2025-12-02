@@ -22,7 +22,7 @@ public class CyberComp {
     public void processNextIntervalRot(float nextIntervalRot) {
         float idealAdjustment = movementCalculator.calculateIdealAdjustment(nextIntervalRot);
         
-        movementMaker.enqueueAdjustment(idealAdjustment);
+        movementMaker.enqueueAdjustment(idealAdjustment, movementCalculator.getIdealPos());
         
         log.debug("CyberComp: Processed nextIntervalRot={}, idealAdjustment={}", 
                   nextIntervalRot, idealAdjustment);
